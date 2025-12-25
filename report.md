@@ -46,3 +46,25 @@
 	 <img width="2440" height="1339" alt="image" src="https://github.com/user-attachments/assets/697e5e9b-1bf7-49f3-9aba-f818cb181f78" />
  
 ### 1.2 Cấu trúc HTTP Request/Response
+
+#### HTTP Request
+
+- HTTP Request Là tin nhắn client gửi đi để kích hoạt một hành động trên server.
+##### Start-line (Request-line)
+Cấu trúc: <method> <request-target> <protocol>
+- `<method>`: HTTP method là một trong một tập hợp các từ được xác định mô tả ý nghĩa của yêu cầu và kết quả mong muốn(ví dụ: GET, POST, PUT, DELETE).
+- `<request-target>`: Request-target thường là một URL tuyệt đối hoặc tương đối, tùy thuộc vào ngữ cảnh của request
+  	* Trong origin form, request-target là đường dẫn tuyệt đối (có thể kèm query string). Server dựa vào Host header để ghép thành URL đầy đủ.Origin form được dùng với các phương thức phổ biến: GET, POST, HEAD, OPTIONS.
+ 
+    		GET /en-US/docs/Web/HTTP/Guides/Messages HTTP/1.1
+	* Absolute form là dạng request-target hiển thị URL đầy đủ kèm authority, và thường được dùng với phương thức GET khi client gửi request qua proxy để proxy biết chính xác tài nguyên cần truy cập.
+
+			GET https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages HTTP/1.1
+	* Authority form là dạng request-target chỉ gồm tên miền/IP và cổng. Nó chỉ xuất hiện trong phương thức CONNECT, khi client muốn thiết lập một HTTP tunnel qua proxy để truyền dữ liệu (thường cho HTTPS).
+
+			CONNECT developer.mozilla.org:443 HTTP/1.1
+	* Asterisk form là dạng request-target đặc biệt, chỉ dùng với OPTIONS, để biểu diễn server như một tổng thể thay vì một tài nguyên cụ thể. Nó hữu ích khi client muốn biết khả năng chung của server, chẳng hạn như những phương thức HTTP nào được hỗ trợ.
+
+			OPTIONS * HTTP/1.1
+- `<protocol>`: HTTP version trong request line là thông tin cho server biết cấu trúc và cách phản hồi. Hầu hết hiện nay là HTTP/1.1, còn các phiên bản mới như HTTP/2 và HTTP/3 không cần ghi version trong thông điệp vì đã được xác định từ kết nối
+
