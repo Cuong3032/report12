@@ -75,7 +75,7 @@ Cấu trúc: <method> <request-target> <protocol>
 
   <img width="1899" height="1256" alt="image" src="https://github.com/user-attachments/assets/becb4dc0-b404-40a3-976d-990d27edf6ba" />
 
-- Phân loại Header trong HTTP
+- Phân loại Header:
   	* Request Headers: Chỉ xuất hiện trong request (từ client gửi lên server). Mục đích là cung cấp ngữ cảnh bổ sung hoặc logic xử lý cho server.
   	* Representation Headers: Xuất hiện khi request có body (ví dụ: POST, PUT). Mục đích là mô tả dữ liệu gốc và cách nó được mã hóa để server có thể tái tạo chính xác.
   	* Headers dùng chung (cả request và response)
@@ -176,3 +176,69 @@ Cấu trúc: <method> <request-target> <protocol>
 
 - TRACE: Dùng để gỡ lỗi, trả lại nội dung request mà server nhận được.
 
+#### HTTP header
+
+- HTTP Headers (các tiêu đề HTTP) cho phép client (máy khách) và server (máy chủ) truyền thêm thông tin bổ sung (metadata) cùng với một HTTP request (yêu cầu) hoặc response (phản hồi). Chúng là phần cốt lõi để định hình cách thức giao tiếp và xử lý dữ liệu trên web.
+- Cú pháp:
+
+	- Trong HTTP/1.x: tên header không phân biệt hoa thường, theo sau là dấu `:` và giá trị (ví dụ: `Allow: POST`).
+
+	- Trong HTTP/2+: headers hiển thị dưới dạng chữ thường, một số pseudo-headers có tiền tố `:` (ví dụ: `:status: 200`).
+- Headers tuỳ chỉnh: Trước đây thường dùng tiền tố X-, nhưng đã bị deprecate từ năm 2012 (RFC 6648).
+ - Phân Loại Theo Ngữ Cảnh (Classification by Context)
+   	- Request Headers: Chứa thông tin về tài nguyên cần lấy hoặc về phía client đang yêu cầu. Ví dụ: `User-Agent`, `Accept-Language`.
+   	- Response Headers: Chứa thông tin bổ sung về phản hồi, vị trí tài nguyên, hoặc về phía server. Ví dụ: `Server`, `Location`.
+   	- Representation Headers: Mô tả về phần thân dữ liệu (body) của tài nguyên (ví dụ: định dạng, nén). Ví dụ: `Content-Type`, `Content-Encoding`.
+   	- Payload Headers: Chứa thông tin độc lập với biểu diễn về dữ liệu payload, như độ dài nội dung để vận chuyển. Ví dụ: `Content-Length`.
+- Phân Loại Theo Cách Xử Lý Proxy:
+  	- End-to-end headers: Phải được truyền đến người nhận cuối cùng (server hoặc client). Các proxy trung gian phải chuyển tiếp nguyên vẹn và bộ nhớ đệm (cache) phải lưu trữ chúng.
+  	- Hop-by-hop headers: Chỉ có ý nghĩa cho một kết nối đơn lẻ (transport-level connection). Không được chuyển tiếp qua proxy hoặc lưu vào cache.
+  	  	- Ví dụ điển hình: `Connection`, `Keep-Alive`.
+- Các Nhóm Chức Năng Chính (Functional Groups):
+  	- Xác thực (Authentication): Dùng để xác minh danh tính người dùng hoặc client.
+  	  - `Authorization`: Chứa thông tin xác thực (credentials) để gửi lên server.
+  	  - `WWW-Authenticate`: Định nghĩa phương thức xác thực server yêu cầu.
+  	- Bộ nhớ đệm (Caching): Kiểm soát việc lưu trữ tài nguyên để tối ưu hiệu suất.
+		- Cache-Control: Chỉ thị quan trọng nhất cho cơ chế caching (ví dụ: no-cache, max-age).
+  		- Expires: Thời điểm tài nguyên hết hạn.
+		- ETag: Chuỗi định danh phiên bản của tài nguyên (dùng để so sánh sự thay đổi).
+	- Cookies: Quản lý trạng thái phiên làm việc (state).
+		- Cookie: Client gửi cookie đã lưu trữ lên server.
+		- Set-Cookie: Server gửi cookie về để client lưu lại.
+	- Đàm phán nội dung (Content Negotiation): Client nói cho server biết mình muốn nhận định dạng dữ liệu nào.
+		- Accept: Loại dữ liệu (MIME type) client có thể hiểu (ví dụ: application/json).
+		- Accept-Language: Ngôn ngữ ưu tiên của người dùng.
+		- Accept-Encoding: Thuật toán nén được hỗ trợ (ví dụ: gzip, br).
+	- CORS (Cross-Origin Resource Sharing): Kiểm soát bảo mật khi truy cập tài nguyên từ một nguồn (domain) khác.
+		- Access-Control-Allow-Origin: Chỉ định domain nào được phép truy cập tài nguyên.
+		- Origin: Nguồn gốc của request.
+	- Thông tin phần thân (Message Body Information): 
+		- Content-Type: Loại nội dung thực tế trả về (ví dụ: text/html; charset=utf-8).
+		- Content-Length: Kích thước của nội dung (tính bằng byte).
+	- Ngữ cảnh yêu cầu (Request Context)
+		- Host: Tên miền và cổng của server (bắt buộc trong HTTP/1.1).
+		- User-Agent: Thông tin về trình duyệt/ứng dụng của client.
+		- Referer: Địa chỉ của trang web trước đó dẫn tới trang hiện tại.
+	- Điều hướng (Redirects)
+		- Location: URL mới mà client nên chuyển hướng tới (thường dùng với mã 3xx).
+	- Bảo mật (Security)
+		- Content-Security-Policy (CSP): Kiểm soát các nguồn tài nguyên mà trình duyệt được phép tải.
+		- Strict-Transport-Security (HSTS): Bắt buộc sử dụng HTTPS.
+#### HOST header
+
+- Host Header là một tiêu đề yêu cầu (Request Header) bắt buộc trong giao thức HTTP/1.1.
+- Chức năng chính: Nó chỉ định chính xác tên miền (domain name) và số cổng (port number - tùy chọn) của máy chủ mà client đang muốn gửi yêu cầu đến.
+- Vai trò quan trọng: Giúp máy chủ xác định được website hoặc ứng dụng nào client muốn truy cập, đặc biệt khi máy chủ đó lưu trữ nhiều website khác nhau trên cùng một địa chỉ IP (cơ chế Virtual Hosting).
+
+- Quy Tắc Sử Dụng (Usage Rules)
+	- Bắt buộc trong HTTP/1.1: Mọi yêu cầu HTTP/1.1 phải có chứa header Host.
+	- Duy nhất: Mỗi yêu cầu chỉ được phép có một header Host.
+	- Xử lý lỗi:
+		- Nếu yêu cầu HTTP/1.1 thiếu header Host, máy chủ sẽ trả về lỗi 400 Bad Request.
+		- Nếu yêu cầu có nhiều hơn một header Host, máy chủ cũng sẽ trả về lỗi 400 Bad Request.
+  ##### Tại Sao Host Header Lại Quan Trọng? (Virtual Hosting)
+- Trước khi có Host header (trong HTTP/1.0), một máy chủ vật lý chỉ có thể phục vụ một tên miền duy nhất cho mỗi địa chỉ IP. Điều này rất lãng phí địa chỉ IP.
+- Host header giải quyết vấn đề này bằng cách cho phép Virtual Hosting (Lưu trữ ảo dựa trên tên):
+	- Nhiều tên miền (ví dụ: a.com, b.com, c.com) cùng trỏ về một địa chỉ IP duy nhất của server.
+	- Khi request đến, server sẽ đọc giá trị trong header Host.
+	- Dựa vào giá trị đó, server biết phải chuyển request đến mã nguồn (source code) của website nào để xử lý.
