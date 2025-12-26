@@ -242,3 +242,51 @@ Cấu trúc: <method> <request-target> <protocol>
 	- Nhiều tên miền (ví dụ: a.com, b.com, c.com) cùng trỏ về một địa chỉ IP duy nhất của server.
 	- Khi request đến, server sẽ đọc giá trị trong header Host.
 	- Dựa vào giá trị đó, server biết phải chuyển request đến mã nguồn (source code) của website nào để xử lý.
+#### Cookie và flag 
+
+##### HTTP cookie (hay web cookie, browser cookie) là một mẩu dữ liệu nhỏ mà máy chủ gửi đến trình duyệt của người dùng. Trình duyệt có thể lưu trữ nó và gửi lại cùng với các yêu cầu (request) tiếp theo lên cùng máy chủ đó. Điều này giúp web có thể ghi nhớ thông tin trạng thái (vì mặc định HTTP là giao thức không trạng thái - stateless).
+- Cookie được sử dụng với 3 mục đích chính:
+  - Quản lý phiên (Session management): Lưu trạng thái đăng nhập, giỏ hàng, điểm số game, hoặc bất kỳ thông tin nào cần nhớ trong phiên làm việc của người dùng.
+	- Cá nhân hóa (Personalization): Lưu các cài đặt ưu tiên của người dùng như ngôn ngữ hiển thị, giao diện (theme), v.v.
+	- Theo dõi (Tracking): Ghi lại và phân tích hành vi người dùng.
+- Tạo và Quản lý Cookie
+	- Tạo Cookie: Máy chủ gửi header Set-Cookie trong phản hồi (response) để yêu cầu trình duyệt lưu cookie.
+
+			Ví dụ: Set-Cookie: id=a3fWa; Expires=Thu, 31 Oct 2021 07:28:00 GMT;
+	- Gửi Cookie: Với mỗi request tiếp theo đến cùng domain, trình duyệt sẽ tự động gửi kèm cookie trong header Cookie.
+	- Vòng đời:
+		- Session cookies: Bị xóa khi đóng trình duyệt (nếu không set Expires hay Max-Age).
+		- Permanent cookies: Tồn tại cho đến khi hết hạn (theo thời gian định sẵn).
+		- Xóa Cookie: Để xóa ngay lập tức, server có thể set lại cookie đó với thời gian hết hạn trong quá khứ.
+	- JavaScript: Có thể tạo/truy cập cookie qua document.cookie (trừ khi cookie có cờ HttpOnly).
+ - Bảo mật: Vì cookie có thể chứa thông tin nhạy cảm, cần chú ý các thuộc tính bảo mật:
+
+		Secure: Chỉ gửi cookie qua kết nối mã hóa (HTTPS), giúp tránh bị nghe lén.
+
+		HttpOnly: Ngăn chặn JavaScript (như document.cookie) truy cập vào cookie. Điều này rất quan trọng để chống lại các cuộc tấn công Cross-site scripting (XSS).
+
+		SameSite: Kiểm soát việc cookie có được gửi cùng với các request từ trang web khác hay không (giúp chống tấn công CSRF).
+- Phạm vi (Scope)
+
+		Domain: Xác định cookie sẽ được gửi đến host nào (ví dụ: nếu set cho mozilla.org thì các subdomain như developer.mozilla.org cũng nhận được).
+
+		Path: Xác định đường dẫn URL nào thì cookie mới được gửi đi (ví dụ: /docs).
+  ##### Các flag của Cookie
+- Security flag:
+  	- HttpOnly: Cờ này chỉ thị cho trình duyệt rằng cookie không được phép truy cập thông qua các API phía client như JavaScript (document.cookie).
+    	- Nếu website bị dính lỗi XSS (hacker chèn được mã độc JS vào trang), đoạn mã đó sẽ cố gắng đọc cookie session để gửi về máy hacker thì HttpOnly ngăn chặn hacker đọc được nội dung cookie. Dù hacker có thể thực thi lệnh trên trình duyệt nạn nhân, hắn không thể lấy được Session ID để mạo danh nạn nhân trên máy khác.
+    	- `Lưu ý`: HttpOnly không chặn được XSS, nó chỉ giảm thiểu thiệt hại (mitigation). Bạn vẫn cần fix lỗi XSS trong code (sanitize input).
+	- Secure: Trình duyệt sẽ chỉ gửi cookie này lên server nếu request được thực hiện qua giao thức mã hóa HTTPS. Cookie sẽ không bao giờ được gửi qua kết nối HTTP không an toàn (trừ localhost).
+	- SameSite: Kiểm soát xem cookie có được gửi đi hay không khi người dùng truy cập từ một trang web khác. Các giá trị của SameSite:
+		- Strict: Cookie chỉ được gửi nếu người dùng đang ở chính trang web đó. (An toàn nhất, nhưng bất tiện nếu người dùng nhấn link từ email).
+ 		- Lax (Mặc định): Cookie được gửi khi người dùng điều hướng đến trang web của bạn (ví dụ: nhấn vào link), nhưng không gửi kèm các yêu cầu phụ (như ảnh, iframe) từ web khác.
+  		- None: Cookie được gửi trong mọi trường hợp (kể cả từ web khác). Bắt buộc phải dùng kèm với Secure.
+- Scope Flags:
+  	- Domain: Xác định tên miền (và các tên miền phụ - subdomain) được phép nhận cookie.
+  	- Path: Giới hạn cookie chỉ hoạt động trong một đường dẫn cụ thể.
+- Lifetime Flags: Nếu không thiết lập các cờ này, cookie sẽ là Session Cookie (Cookie phiên) và sẽ tự xóa khi tắt trình duyệt.
+  	- Expires: Đặt một ngày/giờ cụ thể để cookie hết hạn.
+  	- Max-Age: Đặt số giây cookie được tồn tại (được ưu tiên hơn Expires).
+- Cookie Prefixes: Để tăng cường bảo mật, bạn có thể đặt tên cookie bắt đầu bằng các từ khóa đặc biệt để ép buộc trình duyệt tuân thủ quy tắc:
+  	- `__Host-`: (Ví dụ: `__Host-SessionID`) Yêu cầu cookie phải có cờ Secure, Path=/, và không được có thuộc tính Domain. Đây là loại cookie an toàn nhất.
+  	- `__Secure-`: Yêu cầu cookie phải có cờ Secure.
