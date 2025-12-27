@@ -290,3 +290,38 @@ Cấu trúc: <method> <request-target> <protocol>
 - Cookie Prefixes: Để tăng cường bảo mật, bạn có thể đặt tên cookie bắt đầu bằng các từ khóa đặc biệt để ép buộc trình duyệt tuân thủ quy tắc:
   	- `__Host-`: (Ví dụ: `__Host-SessionID`) Yêu cầu cookie phải có cờ Secure, Path=/, và không được có thuộc tính Domain. Đây là loại cookie an toàn nhất.
   	- `__Secure-`: Yêu cầu cookie phải có cờ Secure.
+##### Lí do website có thể lưu phiên đăng nhập của người dùng vì Website lưu phiên đăng nhập bằng cách gán cho trình duyệt một mã session (thường qua cookie), và dựa vào mã đó để nhận diện người dùng ở các request sau.
+
+- Nguyên lý: "Tấm vé giữ xe"
+	- Hãy tưởng tượng việc đăng nhập giống như bạn đi gửi xe ở siêu thị:
+		- Gửi xe: Bạn đưa xe cho bảo vệ (Nhập tên đăng nhập/mật khẩu).
+		- Nhận vé: Bảo vệ cất xe vào bãi và đưa cho bạn một tấm vé có mã số (Server tạo Session ID và gửi về Browser).
+		- Lấy xe: Khi bạn quay lại lấy xe, bạn không cần tả lại chiếc xe, bạn chỉ cần đưa tấm vé ra (Browser gửi lại Session ID). Bảo vệ nhìn số trên vé và biết xe nào là của bạn.
+##### Status code
+
+- Status code cho biết liệu 1 yêu cầu http cụ thể có được hoàn thành thành công hay không và được chia thành 5 loại:
+	- Informational responses (100 – 199)
+   	- Successful responses (200 – 299)
+   	- Redirection messages (300 – 399)
+   	- Client error responses (400 – 499)
+   	- Server error responses (500 – 599)
+- Informational responses:
+  	- `100 Continue`: phản hồi này cho biêt client nên tiếp tục yêu cầu hoặc bỏ qua phản hồi nếu yêu cầu đã kết thúc.
+  	- `101 Switching Protocols`: Server đồng ý chuyển đổi giao thức theo yêu cầu của client (ví dụ: chuyển từ HTTP sang WebSocket).
+  	- `102 Processing (WebDAV)`: Server đã nhận và đang xử lý yêu cầu nhưng chưa có phản hồi (tránh timeout).
+  	- `103 Early Hints`: Dùng để trả về các header trước khi phản hồi chính sẵn sàng (giúp preload tài nguyên).
+- Successful responses
+  	- `200 OK`: Thành công tiêu chuẩn (GET, HEAD, PUT, POST).
+  	- `201 Created`: Thành công và đã tạo ra tài nguyên mới (thường sau lệnh POST/PUT).
+  	- `202 Accepted`: Đã nhận yêu cầu để xử lý nhưng chưa hoàn thành (xử lý bất đồng bộ/background job).
+  	- `203 Non-Authoritative Information`: Thành công, nhưng thông tin trả về là từ một nguồn khác (proxy) chứ không phải server gốc.
+  	- `204 No Content`: Thành công nhưng không trả về nội dung gì (thường dùng cho DELETE hoặc SAVE).
+  	- `205 Reset Content`: Yêu cầu client reset lại document view (ví dụ: xóa trắng form sau khi gửi).
+  	- `206 Partial Content`: Trả về một phần tài nguyên (dùng khi tải file lớn, resume download hoặc streaming video).
+  	- `207 Multi-Status (WebDAV)`: Thông báo về nhiều trạng thái cho nhiều hoạt động khác nhau cùng lúc (XML body).
+
+
+
+
+
+
