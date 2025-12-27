@@ -339,6 +339,36 @@ Cấu trúc: <method> <request-target> <protocol>
   	- `504 Gateway Timeout`: Server (như một gateway) không nhận được phản hồi kịp thời từ server phía trên.
 ### 1.3. Tìm hiểu cấu trúc của 1 URL
 
+- URL (Uniform Resource Locator) là một chuẩn quy định cách xác định địa chỉ của một tài nguyên trên Internet. Nó phục vụ hai mục đích chính:
+		- Định danh: Xác định tài nguyên đó là gì.
+		- Định vị: Chỉ ra vị trí của tài nguyên và cách thức (giao thức) để truy cập nó.
+- Cấu trúc chung của URL:
+
+  		<scheme>:<scheme-specific-part>
+  	- Scheme (Giao thức/Sơ đồ): Xác định loại giao thức được sử dụng (ví dụ: http, ftp, mailto). Nó bao gồm các ký tự chữ cái, số, dấu cộng (+), dấu chấm (.), và dấu gạch ngang (-) và không phân biệt hoa thường.
+  	- Scheme-specific-part: Phần còn lại của URL, cấu trúc của phần này phụ thuộc hoàn toàn vào loại scheme đứng trước nó.
+
+- Cấu trúc phổ biến (Dành cho các giao thức dựa trên IP):
+	- Mặc dù cấu trúc phụ thuộc vào scheme, nhưng các giao thức phổ biến liên quan đến mạng IP (như HTTP, FTP) đều tuân theo cú pháp chung sau:
+
+			//<user>:<password>@<host>:<port>/<url-path>
+	- //: Dấu hiệu bắt đầu cho các giao thức mạng yêu cầu máy chủ (host).
+	- user (Tùy chọn): Tên người dùng.
+	- password (Tùy chọn): Mật khẩu. Nếu có password thì phải có user đi kèm, ngăn cách bằng dấu hai chấm :.
+	- @ (Tùy chọn): Dấu phân cách giữa thông tin đăng nhập và địa chỉ máy chủ.
+	- host (Bắt buộc): Địa chỉ của máy chủ chứa tài nguyên. Nó có thể là:
+	- Tên miền đầy đủ (FQDN) ví dụ: www.google.com.
+	- Địa chỉ IP (IPv4) ví dụ: 192.168.1.1.
+	- port (Tùy chọn): Cổng mạng để kết nối. Nếu bỏ qua, trình duyệt sẽ dùng cổng mặc định của giao thức (ví dụ HTTP là 80). Ngăn cách với host bằng dấu :.
+	- /url-path: Đường dẫn đến tài nguyên cụ thể trên máy chủ đó.
+ - Các scheme:
+  	- FTP (File Transfer Protocol): Truy cập tệp tin và thư mục.
+   		- Cấu trúc: `ftp://<user>:<password>@<host>:<port>/<cwd1>/<cwd2>/.../<name>`
+     	- Lưu ý: Nếu không nhập user/pass, hệ thống thường mặc định dùng user là anonymous và password là địa chỉ email của người dùng.
+    - HTTP (Hypertext Transfer Protocol): Truy cập tài nguyên World Wide Web.
+    	- Cấu trúc: `http://<host>:<port>/<path>?<searchpart>`
+     	- Lưu ý: Trong RFC 1738, HTTP cho phép phần <searchpart> (thường là query string) nằm sau dấu ?.
+    - MAILTO (Electronic Mail)
 
 
 
