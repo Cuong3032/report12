@@ -357,7 +357,7 @@ Cấu trúc: <method> <request-target> <protocol>
 	- password (Tùy chọn): Mật khẩu. Nếu có password thì phải có user đi kèm, ngăn cách bằng dấu hai chấm :.
 	- @ (Tùy chọn): Dấu phân cách giữa thông tin đăng nhập và địa chỉ máy chủ.
 	- host (Bắt buộc): Địa chỉ của máy chủ chứa tài nguyên. Nó có thể là:
-	- Tên miền đầy đủ (FQDN) ví dụ: www.google.com.
+	- Tên miền đầy đủ (FQDN) ví dụ: `www.google.com`.
 	- Địa chỉ IP (IPv4) ví dụ: 192.168.1.1.
 	- port (Tùy chọn): Cổng mạng để kết nối. Nếu bỏ qua, trình duyệt sẽ dùng cổng mặc định của giao thức (ví dụ HTTP là 80). Ngăn cách với host bằng dấu :.
 	- /url-path: Đường dẫn đến tài nguyên cụ thể trên máy chủ đó.
@@ -368,8 +368,132 @@ Cấu trúc: <method> <request-target> <protocol>
     - HTTP (Hypertext Transfer Protocol): Truy cập tài nguyên World Wide Web.
     	- Cấu trúc: `http://<host>:<port>/<path>?<searchpart>`
      	- Lưu ý: Trong RFC 1738, HTTP cho phép phần <searchpart> (thường là query string) nằm sau dấu ?.
-    - MAILTO (Electronic Mail)
+    - MAILTO (Electronic Mail): Dùng để gửi email.
+      	- Cấu trúc: ``mailto:<rfc822-addr-spec>``
+      	- Ví dụ: `mailto:user@example.com`
+      	- Lưu ý: Scheme này không dùng dấu // vì nó không trỏ đến một vị trí vật lý trên Internet mà trỏ đến một địa chỉ hộp thư.
+    - FILE (Local File): Truy cập tệp tin trên ổ cứng cục bộ.
+    	- Cấu trúc: `file://<host>/<path>`
+     	- Lưu ý: <host> thường để trống (trở thành file:///...) hoặc là localhost.
+    - Các Scheme khác (Ít dùng hoặc đã cũ)
+    	- Gopher: Giao thức tiền thân của Web (gopher://...).
+     	- News/NNTP: Truy cập tin tức Usenet (news:comp.infosystems.www).
+      	- Telnet: Đăng nhập từ xa (telnet://<user>:<password>@<host>:<port>/).
+- Quy tắc về Ký tự và Mã hóa (Encoding)
+	- Các ký tự được phép (Safe Characters)
+		- Chỉ bao gồm:
+		- Chữ cái `(a-z, A-Z)`.
+		- Chữ số `(0-9)`.
+		- Các ký tự đặc biệt "an toàn": `$` `-` `_` `.` `+` `!` `*` `'` `( )` `,`
+  - Các ký tự dành riêng (Reserved Characters)
+		- Đây là các ký tự có chức năng cú pháp đặc biệt (như dấu / để chia thư mục). Nếu bạn muốn dùng chúng như một phần của tên file hay dữ liệu, bạn phải mã hóa chúng.
+		- Bao gồm: `;` `/` `?` `:` `@` `=` `&`
+  - Các ký tự không an toàn (Unsafe Characters)
+		- Những ký tự này phải luôn được mã hóa vì chúng có thể gây hiểu nhầm hoặc không được hỗ trợ truyền tải qua một số gateway:
+		- Dấu cách (Space).
+		- Dấu ngoặc `< >`, dấu nháy kép `"`.
+		- Dấu `#`(dùng cho phân mảnh `-` fragment), `%` (dùng để mã hóa).
+		- Các ký tự điều khiển (Control characters).
+  - Quy tắc mã hóa (Percent-Encoding)
+		- Nếu cần dùng ký tự không an toàn hoặc ký tự dành riêng (trong ngữ cảnh dữ liệu), ta dùng dấu `%` theo sau là 2 chữ số thập lục phân (Hex) đại diện cho mã ASCII của ký tự đó.
+		- Ví dụ: Dấu cách (Space) được mã hóa là `%20`.
+#### 1.4 Web Functionality
 
+##### Server-Side Functionality
 
+- Cơ chế hoạt động:
+	- Khi người dùng yêu cầu một tài nguyên, máy chủ sẽ chạy các tập lệnh (scripts) hoặc mã lệnh (code) để tạo ra phản hồi "on-the-fly" (tức thì).
+	- Nội dung trả về được tùy chỉnh dựa trên các tham số (parameters) mà người dùng gửi lên.
+- Các nguồn dữ liệu đầu vào (Input): Ứng dụng nhận dữ liệu từ người dùng qua:
+	- URL query string (ví dụ: ?uid=129).
+	- Đường dẫn file trong REST-style URLs (ví dụ: /shop/browse/electronics).
+	- HTTP Cookies.
+	- Phần thân (body) của các yêu cầu POST.
+	- Các HTTP headers (ví dụ: User-Agent để nhận diện trình duyệt). 
+- Các công nghệ phía máy chủ phổ biến:
+	- Java Platform (J2EE): Sử dụng cho các ứng dụng doanh nghiệp lớn. Các thuật ngữ quan trọng gồm Enterprise Java Bean (EJB) (thành phần hạng nặng), POJO (đối tượng Java thuần túy), và Java Servlets (nhận request/trả response).
+	- ASP.NET: Framework của Microsoft, sử dụng máy ảo CLR và các ngôn ngữ .NET (C#, VB.NET). Nó giúp phát triển nhanh nhưng đôi khi che giấu các vấn đề bảo mật với người mới.
+	- PHP: Ngôn ngữ kịch bản phổ biến, thường đi kèm với LAMP stack (Linux, Apache, MySQL, PHP). Do dễ dùng nên thường xuất hiện nhiều lỗ hổng bảo mật do lập trình viên thiếu kinh nghiệm.
+	- Ruby on Rails: Framework mô hình MVC giúp phát triển ứng dụng nhanh chóng, nhưng cũng có các lỗ hổng riêng (ví dụ: mass assignment).
+	- SQL: Ngôn ngữ để truy vấn cơ sở dữ liệu quan hệ (Oracle, MS-SQL, MySQL). Lỗ hổng SQL Injection phát sinh khi dữ liệu người dùng bị chèn không an toàn vào câu lệnh SQL.
+	- XML: Dùng để mã hóa dữ liệu máy đọc được. Nó là nền tảng cho nhiều công nghệ khác như Web Services và AJAX.
+	- Web Services (SOAP): Giao thức trao đổi dữ liệu sử dụng XML, thường dùng để các hệ thống back-end giao tiếp với nhau.
+ ##### Client-Side Functionality
 
+ - Logic xử lý ngày càng được đẩy xuống trình duyệt (Browser) để tăng trải nghiệm người dùng. Tuy nhiên, hacker có thể kiểm soát hoàn toàn phía Client.
+ - Các công nghệ cốt lõi:
+	- HTML: Định nghĩa cấu trúc trang. Hacker quan tâm đến các comment ẩn `` hoặc các trường hidden input.
+	- Hyperlinks & Forms:
+		- Forms sử dụng phương thức GET hoặc POST để gửi dữ liệu.
+	- JavaScript: Thực thi logic trên browser.
+		- Dùng để Input Validation (kiểm tra dữ liệu). Lưu ý: Validation phía Client không có giá trị bảo mật vì hacker có thể bypass dễ dàng bằng Proxy.
+		- Thao tác giao diện động.
+- Công nghệ nâng cao:
+	- DOM (Document Object Model): Cấu trúc cây biểu diễn trang HTML. JavaScript truy cập DOM để sửa đổi nội dung trang. Lỗ hổng liên quan: DOM-based XSS.
+	- Ajax (Asynchronous JavaScript and XML):
+		- Sử dụng XMLHttpRequest để gửi request ngầm (background) mà không cần reload trang.
+		- Dữ liệu trả về thường ở dạng XML hoặc JSON.
+	- JSON (JavaScript Object Notation): Định dạng dữ liệu nhẹ, dễ phân tích (parsing) hơn XML.
+	- Same-Origin Policy (SOP): Cơ chế bảo mật quan trọng nhất của browser. Nó ngăn JavaScript từ domain này (VD: attacker.com) truy cập DOM hoặc dữ liệu của domain khác (VD: bank.com).
+	- HTML5: Bổ sung các tính năng như localStorage, WebSockets. Mở ra các vector tấn công mới (VD: tấn công qua WebSocket).
+	- Browser Extensions:
+		- Các công nghệ cũ như Flash, Silverlight, ActiveX, Java Applets.
+		- Chúng chạy trong môi trường sandbox (trừ ActiveX) và thường biên dịch thành bytecode. Hacker cần decompile để phân tích source code.
+##### State and Sessions
 
+- Vấn đề: HTTP là giao thức Stateless (không lưu trạng thái). Server không biết request thứ 2 có phải đến từ cùng người dùng với request thứ 1 hay không.
+- Giải pháp: Sử dụng Sessions.
+	- Server cấp cho Client một Session Token (hoặc Session ID) duy nhất.
+	- Token này được gửi kèm trong mỗi request (thường qua Cookie, đôi khi qua URL).
+	- Nếu hacker chiếm được Token, họ chiếm được phiên làm việc (Session Hijacking).
+
+#### 1.5 Web Functionality
+
+##### URL Encoding
+
+- URL chỉ được phép chứa các ký tự in được trong bộ ký tự US-ASCII (mã ASCII từ 0x20 đến 0x7e). Tuy nhiên, một số ký tự trong phạm vi này cũng bị hạn chế vì chúng có ý nghĩa đặc biệt trong URL hoặc giao thức HTTP.
+- Cơ chế: Mã hóa các ký tự có vấn đề bằng tiền tố `%` theo sau là mã ASCII hai chữ số dưới dạng thập lục phân (hexadecimal).
+- Các ký tự thường được mã hóa:
+	- `%3d` : `=`
+	- `%25` : `%`
+	- `%20` : Khoảng trắng (Space)
+	- `%0a` : Dòng mới (New line)
+	- `%00` : Null byte
+ - Lưu ý: Ký tự `+` cũng đại diện cho khoảng trắng (space) đã được mã hóa URL.
+ - Khi tấn công: Bạn nên mã hóa URL các ký tự sau khi chèn chúng làm dữ liệu vào HTTP request: `space`, `%`, `?`, `&`, `=`, `;`, `+`, `#`.
+
+##### Unicode Encoding
+
+- Unicode được thiết kế để hỗ trợ tất cả các hệ thống chữ viết trên thế giới. Một số phương thức mã hóa Unicode có thể dùng để biểu diễn các ký tự lạ trong ứng dụng web.
+	- 16-bit Unicode: Sử dụng tiền tố %u theo sau là mã điểm Unicode (code point) dạng hex. Ví dụ: %u2215 là /, %u00e9 là é.
+
+	- UTF-8: Là chuẩn mã hóa độ dài biến thiên. Để truyền qua HTTP, dạng mã hóa UTF-8 của một ký tự đa byte sử dụng mỗi byte dưới dạng hex và có tiền tố %. Ví dụ: %c2%a9 là ©.
+
+	- Ứng dụng trong tấn công: Unicode encoding chủ yếu được quan tâm vì nó đôi khi có thể dùng để đánh bại các cơ chế kiểm tra đầu vào (input validation). Nếu bộ lọc chặn các biểu thức độc hại nhất định nhưng thành phần xử lý sau đó lại hiểu mã hóa Unicode, bạn có thể vượt qua bộ lọc bằng các dạng mã hóa Unicode chuẩn hoặc không đúng định dạng (malformed).
+
+ ##### HTML Encoding
+
+ - Dùng để biểu diễn các ký tự có vấn đề sao cho chúng có thể được đưa vào tài liệu HTML một cách an toàn. Các ký tự này thường có ý nghĩa đặc biệt (metacharacters) dùng để định nghĩa cấu trúc tài liệu thay vì nội dung.
+ - HTML entities:
+   	- `&quot;` : `"`
+	- `&apos;` : `'`
+    - `&amp;` : `&`
+	- `&lt;` : `<`
+	- `&gt;` : `>`
+ - Mã hóa số: Bất kỳ ký tự nào cũng có thể được mã hóa HTML bằng mã ASCII dạng thập phân (ví dụ: &#34; là ") hoặc thập lục phân (ví dụ: &#x22; là ").
+ - Ứng dụng trong tấn công: Quan trọng khi thăm dò lỗ hổng Cross-Site Scripting (XSS). Nếu ứng dụng trả về đầu vào của người dùng mà không sửa đổi, nó có thể bị tấn công. Ngược lại, nếu các ký tự nguy hiểm được mã hóa HTML, nó có thể an toàn
+
+##### Base64 Encoding
+
+- Cho phép dữ liệu nhị phân bất kỳ được biểu diễn an toàn chỉ bằng các ký tự ASCII in được. Thường dùng cho file đính kèm email hoặc thông tin xác thực người dùng trong HTTP basic authentication.
+	- Cơ chế: Chia dữ liệu đầu vào thành các khối 3 byte, mỗi khối lại chia thành 4 phần nhỏ 6-bit. Mỗi phần 6-bit được biểu diễn bằng một trong 64 ký tự: A-Z, a-z, 0-9, +, /.
+
+	- Padding: Nếu khối dữ liệu cuối cùng ít hơn 3 phần, kết quả sẽ được đệm thêm một hoặc hai ký tự =.
+
+	- Nhận diện: Chuỗi Base64 thường dễ nhận biết qua tập ký tự đặc trưng và ký tự đệm = ở cuối. Bạn nên luôn giải mã (decode) bất kỳ dữ liệu Base64 nào nhận được từ client để xem nội dung bên trong.
+ ##### Hex Encoding
+
+ - Nhiều ứng dụng sử dụng mã hóa thập lục phân đơn giản khi truyền dữ liệu nhị phân, dùng các ký tự ASCII để biểu diễn khối hex.
+ 	- Ví dụ: Mã hóa hex username "daf" sẽ cho kết quả là 646166.
+
+	- Ứng dụng: Dữ liệu mã hóa hex thường dễ phát hiện. Bạn nên luôn cố gắng giải mã dữ liệu này để hiểu chức năng của nó.
