@@ -319,7 +319,25 @@ Cấu trúc: <method> <request-target> <protocol>
   	- `205 Reset Content`: Yêu cầu client reset lại document view (ví dụ: xóa trắng form sau khi gửi).
   	- `206 Partial Content`: Trả về một phần tài nguyên (dùng khi tải file lớn, resume download hoặc streaming video).
   	- `207 Multi-Status (WebDAV)`: Thông báo về nhiều trạng thái cho nhiều hoạt động khác nhau cùng lúc (XML body).
-
+  	- `208 Already Reported (WebDAV)`: Các thành viên của một liên kết DAV đã được liệt kê trước đó, không cần lặp lại.
+  	- `226 IM Used`: Server đã hoàn thành yêu cầu GET và phản hồi là sự biểu diễn kết quả của một hoặc nhiều thao tác instance-manipulation.
+- Redirection messages
+  	- `300 Multiple Choices`: Có nhiều lựa chọn cho tài nguyên (ví dụ: nhiều định dạng video, nhiều ngôn ngữ), client cần chọn một.
+  	- `301 Moved Permanently`: Tài nguyên đã chuyển vĩnh viễn sang URL mới. Các trình duyệt và bot tìm kiếm (SEO) sẽ cập nhật sang link mới này.
+  	- `302 Found`: Tài nguyên tạm thời chuyển sang URL khác.
+  	- `304 Not Modified`: Tài nguyên không thay đổi kể từ lần cuối truy cập. Trình duyệt có thể dùng bản lưu trong bộ nhớ đệm (cache) thay vì tải lại, giúp tiết kiệm băng thông.
+- Client error responses
+  	- `400 Bad Request`: Server không hiểu yêu cầu do cú pháp sai.
+  	- `401 Unauthorized`: Yêu cầu cần xác thực danh tính (cần đăng nhập).
+  	- `403 Forbidden`: Client đã được nhận diện (đăng nhập rồi) nhưng không có quyền truy cập tài nguyên này.
+  	- `404 Not Found`: Server không tìm thấy tài nguyên được yêu cầu (Lỗi phổ biến nhất khi gõ sai URL hoặc link bị chết).
+  	- `429 Too Many Requests`: Người dùng gửi quá nhiều yêu cầu trong một khoảng thời gian nhất định (Rate limiting).
+- Server error responses
+  	- `500 Internal Server Error`: Lỗi chung chung, server gặp sự cố bất ngờ và không biết cụ thể là gì.
+  	- `502 Bad Gateway`: Server hoạt động như một gateway hoặc proxy và nhận được phản hồi không hợp lệ từ server phía trên (upstream).
+  	- `503 Service Unavailable`: Server chưa sẵn sàng xử lý (thường do quá tải hoặc đang bảo trì).
+  	- `504 Gateway Timeout`: Server (như một gateway) không nhận được phản hồi kịp thời từ server phía trên.
+### 1.3. Tìm hiểu cấu trúc của 1 URL
 
 
 
